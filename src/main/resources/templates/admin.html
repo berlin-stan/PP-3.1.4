@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+</head>
+<body>
+<h1>Admin Panel</h1>
+<p>Welcome to admin page!</p>
+
+<a th:href="@{/admin/users}">Manage Users</a>
+<br>
+<a th:href="@{/admin/addUser}">Add New User</a>
+<br>
+<form th:action="@{/logout}" method="post">
+  <button type="submit">Logout</button>
+</form>
+</body>
+</html>
