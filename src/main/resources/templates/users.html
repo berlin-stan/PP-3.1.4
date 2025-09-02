@@ -1,47 +1,503 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Users</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; text-decoration: none; border: 1px solid #ccc; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .top-bar {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-info p {
+            margin: 0;
+            margin-right: 15px;
+        }
+        .btn-logout {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background-color: #5a6268;
+        }
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 56px);
+        }
+        .sidebar {
+            width: 200px;
+            background-color: white;
+            padding: 20px 0;
+            border-right: 1px solid #dee2e6;
+        }
+        .sidebar-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-item.active {
+            background-color: #e9ecef;
+            border-left-color: #0d6efd;
+            font-weight: 500;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .page-header {
+            margin-bottom: 20px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom-color: #0d6efd;
+            font-weight: 500;
+        }
+        .table-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .users-table th {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .users-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .users-table tr:last-child td {
+            border-bottom: none;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-edit {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-edit:hover {
+            background-color: #0b5ed7;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background-color: #bb2d3b;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            padding: 25px;
+            display: none;
+            max-width: 600px;
+        }
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        .btn-submit {
+            background-color: #198754;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-submit:hover {
+            background-color: #157347;
+        }
+        .active-content {
+            display: block;
+        }
+        .add-user-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
+        .role-checkbox {
+            margin-right: 10px;
+        }
+        .checkbox-group {
+            margin-top: 10px;
+        }
+        .checkbox-item {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
-<h1>Users List</h1>
+<!-- Top bar -->
+<div class="top-bar">
+    <div class="user-info">
+        <p>admin@mail.ru with roles: ADMIN USER</p>
+    </div>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+</div>
 
-<a th:href="@{/admin/addUser}" class="btn">Add New User</a>
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-item active">Admin</div>
+        <div class="sidebar-item">User</div>
+    </div>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Age</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}">ID</td>
-        <td th:text="${user.name}">Name</td>
-        <td th:text="${user.email}">Email</td>
-        <td th:text="${user.age}">Age</td>
-        <td>
-            <a th:href="@{/admin/editUser(id=${user.id})}" class="btn">Edit</a>
-            <a th:href="@{/admin/deleteUser(id=${user.id})}" class="btn"
-               onclick="return confirm('Delete this user?')">Delete</a>
-        </td>
-    </tr>
-    </tbody>
-</table>
+    <!-- Main content -->
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Admin panel</h1>
+            <div class="tabs">
+                <div class="tab" data-target="users-table">Users table</div>
+                <div class="tab active" data-target="new-user-form">New User</div>
+            </div>
+        </div>
 
-<br>
-<a th:href="@{/admin}">Back to Admin Panel</a>
+        <!-- Users Table Content -->
+        <div id="users-table" class="table-container">
+            <h2 class="mb-3">All users</h2>
 
+            <table class="users-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Age</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>2</td>
+                    <td>admin</td>
+                    <td>admin</td>
+                    <td>35</td>
+                    <td>admin@mail.ru</td>
+                    <td>ADMIN USER</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-user-id="2">Edit</button>
+                            <button class="btn-delete" data-user-id="2">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>user</td>
+                    <td>user</td>
+                    <td>30</td>
+                    <td>user@mail.ru</td>
+                    <td>USER</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-user-id="3">Edit</button>
+                            <button class="btn-delete" data-user-id="3">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- New User Form -->
+        <div id="new-user-form" class="form-container active-content">
+            <h3 class="add-user-title">Add new user</h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="firstName">First name</label>
+                    <input type="text" id="firstName" value="111">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last name</label>
+                    <input type="text" id="lastName" value="111">
+                </div>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" value="111">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" value="111@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" value="111111">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="adminRole" class="role-checkbox" checked>
+                            <label for="adminRole">ADMIN</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="userRole" class="role-checkbox" checked>
+                            <label for="userRole">USER</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-submit">Add new user</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Edit User Form (initially hidden) -->
+        <div id="edit-user-form" class="form-container">
+            <h3 class="form-title">Edit User</h3>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="editFirstName">First Name</label>
+                    <input type="text" id="editFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name</label>
+                    <input type="text" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAge">Age</label>
+                    <input type="number" id="editAge" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">Password</label>
+                    <input type="password" id="editPassword" placeholder="Leave blank to keep current">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="editAdminRole" class="role-checkbox">
+                            <label for="editAdminRole">ADMIN</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="editUserRole" class="role-checkbox">
+                            <label for="editUserRole">USER</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn-cancel" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="btn-submit">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Show/hide content based on tab
+            const target = this.getAttribute('data-target');
+            document.querySelectorAll('#users-table, #new-user-form').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            if (target === 'users-table') {
+                document.getElementById('users-table').style.display = 'block';
+            } else if (target === 'new-user-form') {
+                document.getElementById('new-user-form').style.display = 'block';
+            }
+        });
+    });
+
+    // Sidebar item selection
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.sidebar-item').forEach(i => {
+                i.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+
+    // Logout button
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            alert('Logout successful!');
+            // In a real application, this would redirect to logout URL
+        }
+    });
+
+    // Delete user buttons
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            if (confirm(`Are you sure you want to delete user #${userId}?`)) {
+                alert(`User #${userId} has been deleted.`);
+                // In a real application, this would send a DELETE request to the server
+            }
+        });
+    });
+
+    // Edit user buttons
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+
+            // Hide other content and show edit form
+            document.getElementById('users-table').style.display = 'none';
+            document.getElementById('new-user-form').style.display = 'none';
+            document.getElementById('edit-user-form').style.display = 'block';
+
+            // In a real application, this would fetch user data from the server
+            // For demo purposes, we're using placeholder data
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editFirstName').value = userId === '2' ? 'admin' : 'user';
+            document.getElementById('editLastName').value = userId === '2' ? 'admin' : 'user';
+            document.getElementById('editAge').value = userId === '2' ? '35' : '30';
+            document.getElementById('editEmail').value = userId === '2' ? 'admin@mail.ru' : 'user@mail.ru';
+
+            // Set roles
+            document.getElementById('editAdminRole').checked = userId === '2';
+            document.getElementById('editUserRole').checked = true;
+        });
+    });
+
+    // Cancel edit form
+    document.getElementById('cancelEdit').addEventListener('click', function() {
+        document.getElementById('edit-user-form').style.display = 'none';
+        document.getElementById('users-table').style.display = 'block';
+
+        // Reset active tab
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+        });
+        document.querySelector('[data-target="users-table"]').classList.add('active');
+    });
+
+    // Submit edit form
+    document.getElementById('editUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userId = document.getElementById('editUserId').value;
+        alert(`User #${userId} has been updated.`);
+        document.getElementById('edit-user-form').style.display = 'none';
+        document.getElementById('users-table').style.display = 'block';
+
+        // Reset active tab
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+        });
+        document.querySelector('[data-target="users-table"]').classList.add('active');
+    });
+
+    // Submit add form
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('New user has been added.');
+        // In a real application, this would send the form data to the server
+    });
+</script>
 </body>
 </html>

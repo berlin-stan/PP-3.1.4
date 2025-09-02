@@ -3,9 +3,12 @@ package ru.kata.spring.boot_security.demo.controller;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -28,14 +31,15 @@ public class UserController {
     }
 
     @GetMapping("/admin")
-    public String adminPage() {
+    public String adminPage(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
         return "admin";
     }
 
     @GetMapping("/admin/users")
     public String showUsers(Model model) {
         model.addAttribute("users", userService.getAllUsers());
-        return "users";
+        return "admin";
     }
 
     @GetMapping("/admin/addUser")
@@ -46,11 +50,14 @@ public class UserController {
 
     @PostMapping("/admin/saveUser")
     public String saveUser(@RequestParam(value = "id", required = false) Long id,
-                           @RequestParam("name") String name,
+                           @RequestParam("firstName") String firstName,
+                           @RequestParam("lastName") String lastName,
                            @RequestParam("email") String email,
                            @RequestParam("age") int age,
-                           @RequestParam("password") String password) {
-        userService.saveOrUpdateUser(id, name, email, age, password);
+                           @RequestParam(value = "password", required = false) String password,
+                           @RequestParam("roles") List<String> roles) {
+
+        userService.saveOrUpdateUser(id, firstName, lastName, email, age, password, roles);
         return "redirect:/admin/users";
     }
 
@@ -68,7 +75,10 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String userPage() {
+    public String userPage(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userService.findByEmail(email);
+        model.addAttribute("user", user);
         return "user";
     }
 }

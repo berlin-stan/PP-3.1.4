@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Component
@@ -42,32 +42,39 @@ public class DataInitializer {
             roleRepository.save(userRole);
         }
 
-        User adminUser = userService.findByEmail("admin@mail.com");
-        if (adminUser == null) {
-            User admin = new User();
-            admin.setName("Admin");
-            admin.setEmail("admin@mail.com");
-            admin.setAge(30);
-            admin.setPassword(passwordEncoder.encode("admin"));
-
-            Set<Role> adminRoles = new HashSet<>();
-            adminRoles.add(adminRole);
-            admin.setRoles(adminRoles);
-            userService.saveUser(admin);
+        User existingAdmin = userService.findByEmail("admin@mail.com");
+        if (existingAdmin != null) {
+            userService.deleteUser(existingAdmin.getId());
         }
 
-        User regularUser = userService.findByEmail("user@mail.com");
-        if (regularUser == null) {
-            User user = new User();
-            user.setName("User");
-            user.setEmail("user@mail.com");
-            user.setAge(25);
-            user.setPassword(passwordEncoder.encode("user"));
-
-            Set<Role> userRoles = new HashSet<>();
-            userRoles.add(userRole);
-            user.setRoles(userRoles);
-            userService.saveUser(user);
+        User existingUser = userService.findByEmail("user@mail.com");
+        if (existingUser != null) {
+            userService.deleteUser(existingUser.getId());
         }
+
+        User admin = new User();
+        admin.setFirstName("Admin");
+        admin.setLastName("Admin");
+        admin.setEmail("admin@mail.com");
+        admin.setAge(35);
+        admin.setPassword(passwordEncoder.encode("admin"));
+
+        Set<Role> adminRoles = new LinkedHashSet<>();
+        adminRoles.add(adminRole);
+        adminRoles.add(userRole);
+        admin.setRoles(adminRoles);
+        userService.saveUser(admin);
+
+        User user = new User();
+        user.setFirstName("User");
+        user.setLastName("User");
+        user.setEmail("user@mail.com");
+        user.setAge(30);
+        user.setPassword(passwordEncoder.encode("user"));
+
+        Set<Role> userRoles = new LinkedHashSet<>();
+        userRoles.add(userRole);
+        user.setRoles(userRoles);
+        userService.saveUser(user);
     }
 }
