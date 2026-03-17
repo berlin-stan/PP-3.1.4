@@ -46,14 +46,14 @@
 <!-- Top Black Bar -->
 <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
-    <span class="navbar-text">
-      <strong th:text="${#authentication.name}">admin@mail.com</strong> with roles:
-      <span th:each="role, stat : ${#authentication.authorities}"
-            th:text="${role.authority.replace('ROLE_', '')} + (not ${stat.last} ? ' ' : '')"></span>
-    </span>
-    <a th:href="@{/logout}" class="btn btn-secondary btn-sm">
-      Logout
-    </a>
+        <span class="navbar-text">
+            <strong th:text="${#authentication.name}">admin@mail.com</strong> with roles:
+            <span th:each="role, stat : ${#authentication.authorities}"
+                  th:text="${role.authority.replace('ROLE_', '')} + (not ${stat.last} ? ' ' : '')"></span>
+        </span>
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+      <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+    </form>
   </div>
 </nav>
 
@@ -90,9 +90,7 @@
           <a class="nav-link active" href="#usersTable" data-bs-toggle="tab">Users table</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" th:href="@{/admin/addUser}">
-            New User
-          </a>
+          <a class="nav-link" href="#" onclick="showAddModal()">New User</a>
         </li>
       </ul>
 
@@ -128,14 +126,7 @@
   </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Delete User</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+
       <div class="modal-body">
         <div class="form-center">
           <div class="mb-3">
@@ -172,6 +163,121 @@
   </div>
 </div>
 
+<!-- Edit User Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editUserId">
+
+          <div class="mb-3">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" id="editFirstName" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" id="editLastName" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-control" id="editAge" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="editEmail" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="editPassword"
+                   placeholder="Leave empty to keep current">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Roles</label>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="editRoleUser" value="ROLE_USER">
+              <label class="form-check-label">USER</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="editRoleAdmin" value="ROLE_ADMIN">
+              <label class="form-check-label">ADMIN</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="updateUser()">Update User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Add New User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addForm">
+          <div class="mb-3">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" id="addFirstName" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" id="addLastName" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-control" id="addAge" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="addEmail" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="addPassword" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Roles</label>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="addRoleUser" value="ROLE_USER" checked>
+              <label class="form-check-label">USER</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="addRoleAdmin" value="ROLE_ADMIN">
+              <label class="form-check-label">ADMIN</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="createUser()">Create User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap & Popper -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
@@ -182,7 +288,6 @@
 <script>
   // Глобальные переменные
   let users = [];
-  let userToDelete = null;
 
   // Загрузка при старте
   $(document).ready(function() {
@@ -217,25 +322,25 @@
       const roles = user.roles.map(role => role.name.replace('ROLE_', '')).join(' ');
 
       const row = `
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.firstName}</td>
-                <td>${user.lastName}</td>
-                <td>${user.age}</td>
-                <td>${user.email}</td>
-                <td>${roles}</td>
-                <td>
-                    <a href="/admin/editUser?id=${user.id}" class="btn btn-info btn-sm">
-                        Edit
-                    </a>
-                </td>
-                <td>
-                    <button class="btn btn-danger btn-sm" onclick="showDeleteModal(${user.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        `;
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.firstName}</td>
+                    <td>${user.lastName}</td>
+                    <td>${user.age}</td>
+                    <td>${user.email}</td>
+                    <td>${roles}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="showEditModal(${user.id})">
+                            Edit
+                        </button>
+                    </td>
+                    <td>
+    <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">
+        Delete
+    </button>
+</td>
+                </tr>
+            `;
       tbody.append(row);
     });
 
@@ -243,43 +348,141 @@
     $('#usersTableContainer').show();
   }
 
-  // Показать модальное окно удаления
-  function showDeleteModal(userId) {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      userToDelete = user;
+  // Показать модальное окно добавления
+  function showAddModal() {
+    $('#addFirstName').val('');
+    $('#addLastName').val('');
+    $('#addAge').val('');
+    $('#addEmail').val('');
+    $('#addPassword').val('');
+    $('#addRoleUser').prop('checked', true);
+    $('#addRoleAdmin').prop('checked', false);
+    $('#addModal').modal('show');
+  }
 
-      $('#deleteUserFirstName').text(user.firstName);
-      $('#deleteUserLastName').text(user.lastName);
-      $('#deleteUserAge').text(user.age);
-      $('#deleteUserEmail').text(user.email);
-      $('#deleteUserRole').text(user.roles.map(role => role.name.replace('ROLE_', '')).join(' '));
+  // Создание нового пользователя
+  async function createUser() {
+    const roles = [];
+    if ($('#addRoleUser').is(':checked')) roles.push('ROLE_USER');
+    if ($('#addRoleAdmin').is(':checked')) roles.push('ROLE_ADMIN');
 
-      $('#deleteModal').modal('show');
+    const userData = {
+      firstName: $('#addFirstName').val(),
+      lastName: $('#addLastName').val(),
+      age: parseInt($('#addAge').val()),
+      email: $('#addEmail').val(),
+      password: $('#addPassword').val(),
+      roles: roles.map(roleName => ({ name: roleName }))
+    };
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (response.ok) {
+        $('#addModal').modal('hide');
+        await loadUsers();
+        alert('User created successfully');
+      } else {
+        alert('Error creating user');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error creating user');
     }
   }
 
-  // Подтверждение удаления
-  async function confirmDelete() {
-    if (userToDelete) {
-      try {
-        const response = await fetch(`/api/admin/users/${userToDelete.id}`, {
-          method: 'DELETE'
-        });
+  // Показать модальное окно редактирования
+  async function showEditModal(userId) {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`);
+      if (response.ok) {
+        const user = await response.json();
 
-        if (response.ok) {
-          $('#deleteModal').modal('hide');
-          loadUsers();
-          alert('User deleted successfully');
-        } else {
-          alert('Error deleting user');
-        }
-      } catch (error) {
-        console.error('Error:', error);
+        $('#editUserId').val(user.id);
+        $('#editFirstName').val(user.firstName);
+        $('#editLastName').val(user.lastName);
+        $('#editAge').val(user.age);
+        $('#editEmail').val(user.email);
+        $('#editPassword').val('');
+
+        // Отмечаем роли пользователя
+        $('#editRoleUser').prop('checked', user.roles.some(r => r.name === 'ROLE_USER'));
+        $('#editRoleAdmin').prop('checked', user.roles.some(r => r.name === 'ROLE_ADMIN'));
+
+        $('#editModal').modal('show');
+      } else {
+        alert('Error loading user data');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error loading user data');
+    }
+  }
+
+  // Обновление пользователя
+  async function updateUser() {
+    const userId = $('#editUserId').val();
+
+    const userData = {
+      id: userId,
+      firstName: $('#editFirstName').val(),
+      lastName: $('#editLastName').val(),
+      age: parseInt($('#editAge').val()),
+      email: $('#editEmail').val()
+    };
+
+    const password = $('#editPassword').val();
+    if (password && password.trim() !== '') {
+      userData.password = password;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (response.ok) {
+        $('#editModal').modal('hide');
+        await loadUsers();
+      } else {
+        alert('Error updating user');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error updating user');
+    }
+  }
+
+  // Удаление пользователя без подтверждения
+  async function deleteUser(userId) {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await loadUsers(); // перезагружаем таблицу
+      } else {
         alert('Error deleting user');
       }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error deleting user');
     }
   }
+
+
+
 </script>
 </body>
 </html>
