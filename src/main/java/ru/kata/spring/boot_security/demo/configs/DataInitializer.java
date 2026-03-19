@@ -28,6 +28,10 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
+
+        // ПРИНУДИТЕЛЬНО УДАЛЯЕМ ВСЕХ СТАРЫХ ПОЛЬЗОВАТЕЛЕЙ
+        userService.getAllUsers().forEach(user -> userService.deleteUser(user.getId()));
+
         Role adminRole = roleRepository.findByName("ROLE_ADMIN");
         if (adminRole == null) {
             adminRole = new Role();
@@ -42,22 +46,16 @@ public class DataInitializer {
             roleRepository.save(userRole);
         }
 
-        User existingAdmin = userService.findByEmail("admin@mail.com");
-        if (existingAdmin != null) {
-            userService.deleteUser(existingAdmin.getId());
-        }
+        // Очищаем всех пользователей
+        userService.getAllUsers().forEach(user -> userService.deleteUser(user.getId()));
 
-        User existingUser = userService.findByEmail("user@mail.com");
-        if (existingUser != null) {
-            userService.deleteUser(existingUser.getId());
-        }
-
+        // Создаём админа с зашифрованным паролем
         User admin = new User();
         admin.setFirstName("Admin");
         admin.setLastName("Admin");
-        admin.setEmail("admin@mail.com");
+        admin.setEmail("admin@mail.ru");
         admin.setAge(35);
-        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setPassword(passwordEncoder.encode("admin")); // пароль admin
 
         Set<Role> adminRoles = new LinkedHashSet<>();
         adminRoles.add(adminRole);
@@ -65,16 +63,39 @@ public class DataInitializer {
         admin.setRoles(adminRoles);
         userService.saveUser(admin);
 
+        // Создаём юзера с зашифрованным паролем
         User user = new User();
         user.setFirstName("User");
         user.setLastName("User");
-        user.setEmail("user@mail.com");
+        user.setEmail("user@mail.ru");
         user.setAge(30);
-        user.setPassword(passwordEncoder.encode("user"));
+        user.setPassword(passwordEncoder.encode("user")); // пароль user
 
         Set<Role> userRoles = new LinkedHashSet<>();
         userRoles.add(userRole);
         user.setRoles(userRoles);
         userService.saveUser(user);
+
+        System.out.println("=== DataInitializer: users created with encrypted passwords ===");
+
+
+
+        // === ПРОВЕРКА ПАРОЛЕЙ ===
+        System.out.println("=== ПРОВЕРКА ПАРОЛЕЙ ===");
+        User adminCheck = userService.findByEmail("admin@mail.ru");
+        if (adminCheck != null) {
+            boolean adminMatch = passwordEncoder.matches("admin", adminCheck.getPassword());
+            System.out.println("Пароль 'admin' совпадает с БД: " + adminMatch);
+
+            boolean adminMatchWrong = passwordEncoder.matches("admin123", adminCheck.getPassword());
+            System.out.println("Пароль 'admin123' совпадает с БД: " + adminMatchWrong);
+        }
+
+        User userCheck = userService.findByEmail("user@mail.ru");
+        if (userCheck != null) {
+            boolean userMatch = passwordEncoder.matches("user", userCheck.getPassword());
+            System.out.println("Пароль 'user' совпадает с БД: " + userMatch);
+        }
+        System.out.println("=== КОНЕЦ ПРОВЕРКИ ===");
     }
 }

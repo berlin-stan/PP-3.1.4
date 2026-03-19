@@ -30,24 +30,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void saveUser(User user) {
-        // Шифруем пароль
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Загружаем существующие роли из БД по их именам
+        // Загружаем существующие роли из БД
         Set<Role> managedRoles = new LinkedHashSet<>();
         for (Role role : user.getRoles()) {
             Role existingRole = roleRepository.findByName(role.getName());
             if (existingRole != null) {
                 managedRoles.add(existingRole);
-            } else {
-                Role newRole = new Role();
-                newRole.setName(role.getName());
-                roleRepository.save(newRole);
-                managedRoles.add(newRole);
             }
         }
         user.setRoles(managedRoles);
-
         userRepository.save(user);
     }
 
@@ -61,12 +52,10 @@ public class UserServiceImpl implements UserService {
             existingUser.setEmail(user.getEmail());
             existingUser.setAge(user.getAge());
 
-            // Обновляем пароль, если пришел новый
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                 existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
 
-            // Обновляем роли, если они пришли
             if (user.getRoles() != null && !user.getRoles().isEmpty()) {
                 Set<Role> managedRoles = new LinkedHashSet<>();
                 for (Role role : user.getRoles()) {
