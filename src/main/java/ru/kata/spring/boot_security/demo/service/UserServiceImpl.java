@@ -36,12 +36,10 @@ public class UserServiceImpl implements UserService {
         // Загружаем существующие роли из БД по их именам
         Set<Role> managedRoles = new LinkedHashSet<>();
         for (Role role : user.getRoles()) {
-            // Ищем роль в БД по имени
             Role existingRole = roleRepository.findByName(role.getName());
             if (existingRole != null) {
-                managedRoles.add(existingRole);  // добавляем роль из БД (с ID)
+                managedRoles.add(existingRole);
             } else {
-                // Если роли нет в БД (а такое вряд ли) - создаем
                 Role newRole = new Role();
                 newRole.setName(role.getName());
                 roleRepository.save(newRole);
@@ -63,8 +61,21 @@ public class UserServiceImpl implements UserService {
             existingUser.setEmail(user.getEmail());
             existingUser.setAge(user.getAge());
 
+            // Обновляем пароль, если пришел новый
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                 existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
+            // Обновляем роли, если они пришли
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                Set<Role> managedRoles = new LinkedHashSet<>();
+                for (Role role : user.getRoles()) {
+                    Role existingRole = roleRepository.findByName(role.getName());
+                    if (existingRole != null) {
+                        managedRoles.add(existingRole);
+                    }
+                }
+                existingUser.setRoles(managedRoles);
             }
 
             userRepository.save(existingUser);
