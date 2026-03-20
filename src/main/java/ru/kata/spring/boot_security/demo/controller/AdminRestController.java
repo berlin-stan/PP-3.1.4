@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -14,10 +15,12 @@ import java.util.List;
 public class AdminRestController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AdminRestController(UserService userService) {
+    public AdminRestController(UserService userService, PasswordEncoder passwordEncoder) {  // ИЗМЕНИТЬ
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;  // ДОБАВИТЬ
     }
 
     @GetMapping("/users")
@@ -35,6 +38,7 @@ public class AdminRestController {
 
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.saveUser(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
